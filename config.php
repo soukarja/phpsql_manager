@@ -5,7 +5,7 @@ define('DB_USERNAME', 'root');
 
 define('DB_PASSWORD', '');
 
-define('DB_NAME', 'testdb');
+define('DB_NAME', 'mlbbguide');
 
  
 /* Attempt to connect to MySQL database */

@@ -545,6 +545,108 @@ class insertRow
     }
 }
 
+
+/**
+ * Update a Row in the Table
+ */
+class updateRow
+{
+    private $tableName;
+    private $condition;
+    private $columnNames;
+    private $columnValues;
+
+    /**
+     * @param string $tableName Name of the Table
+     */
+
+    function __construct($tableName = "")
+    {
+        $this->tableName = $tableName;
+        $this->columnNames = [];
+        $this->columnValues = [];
+        $this->condition = "";
+    }
+
+    /**
+     * Sets the Name of the Table to Be updated
+     * @param string $tableName Name of the Table
+     */
+    public function setTableName($tableName)
+    {
+        $this->tableName = $tableName;
+    }
+
+    /**
+     * Add Data for each Column tom be updated
+     * @param string $columnName Name of the Column
+     * @param string $value The Value to be updated into the column
+     */
+    public function addColumnData($columnName, $value)
+    {
+        array_push($this->columnNames, $columnName);
+        array_push($this->columnValues, $value);
+    }
+
+    /**
+     * Set Update Condition for the Query
+     * @param string $condition Condition for the SQL Update Statement
+     */
+    public function setCondition($condition)
+    {
+        $this->condition = trim($condition);
+    }
+
+
+    /**
+     * Update the Row in the Table.
+     * @return bool returns true if the Row is Updated. Otherwise Returns false.
+     */
+
+    public function updateRow($condition="")
+    {
+        if (trim($condition)!= "")
+            $this->condition = trim($condition);
+
+        if (trim($this->tableName) == "")
+            return false;
+
+        if (count($this->columnNames) <= 0)
+            return false;
+
+        if (count($this->columnValues) <= 0)
+            return false;
+
+        if (count($this->columnValues) != count($this->columnNames))
+            return false;
+
+
+        $sqlCommand = "UPDATE `" . $this->tableName . "`";
+
+        $temp = "";
+
+        for ($i = 0; $i < count($this->columnNames); $i++){
+            if ($temp != "")
+                $temp .= ", ";
+            else
+                $temp = " SET ";
+
+            $temp .= "`".$this->columnNames[$i]."` = '".$this->columnValues[$i]."'";
+        }
+
+
+
+        $sqlCommand .= $temp;
+
+        if (!empty(trim($this->condition)))
+        {
+            $sqlCommand .= " ".$this->condition;
+        }
+
+        return executeQuery($sqlCommand);
+    }
+}
+
 // class sqlSELECT{
 //     private $conditions;
 //     private $tableName;
