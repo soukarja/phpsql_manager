@@ -3,26 +3,26 @@
 
 Quickly Manage SQL Functions in PHP
 ## Functions Available
-0. [Sample Text](#sample)
-1. executeQuery
-2. fetchData
-3. fetchList
-4. isSQLDataExist
-5. isSQLListEmpty
-6. countRows
-7. countRowsInTable
-8. isTableEmpty
-9. createTable
-10. insertNewColumn
-11. editColumn
-12. deleteColumn
-13. deleteTable
-14. emptyTable
-15. insertRow
-16. updateRow
-17. sqlPrimaryKey
-18. sqlUniqueKey
-19. setPHPErrors
+1. executeQuery (#executeQuery)
+2. fetchData (#fetchData)
+3. fetchList (#fetchList)
+4. isSQLDataExist (#isSQLDataExist)
+5. isSQLListEmpty (#isSQLListEmpty)
+6. countRows (#countRows)
+7. countRowsInTable (#countRowsInTable)
+8. isTableEmpty (#isTableEmpty)
+9. createTable (#createTable)
+10. insertNewColumn (#insertNewColumn)
+11. editColumn (#editColumn)
+12. deleteColumn (#deleteColumn)
+13. deleteTable (#deleteTable)
+14. emptyTable (#emptyTable)
+15. insertRow (#insertRow)
+16. updateRow (#updateRow)
+17. sqlPrimaryKey (#sqlPrimaryKey)
+18. sqlUniqueKey (#sqlUniqueKey)
+19. setPHPErrors (#setPHPErrors)
+
 ## Usage/Examples
 
 ## executeQuery
