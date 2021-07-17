@@ -818,7 +818,10 @@ class sqlUniqueKey
     }
 }
 
-
+/**
+     * Show or Display Errors/Warnings in PHP
+     * @param bool $showErrors Set True if errors should be shown. Otherwise Set false.
+     */
 function setPHPErrors($showErrors)
 {
     if ($showErrors) {
