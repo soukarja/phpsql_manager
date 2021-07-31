@@ -72,7 +72,7 @@ function fetchData($sql, $safequery = true)
 {
     global $link;
 
-    if ($safequery)
+    if ($safequery && !(strpos($sql, ' LIMIT ') !== false))
         $sql = trim($sql) . " LIMIT 1";
 
     $query = $link->query($sql);
@@ -603,9 +603,9 @@ class updateRow
      * @return bool returns true if the Row is Updated. Otherwise Returns false.
      */
 
-    public function updateRow($condition="")
+    public function updateRow($condition = "")
     {
-        if (trim($condition)!= "")
+        if (trim($condition) != "")
             $this->condition = trim($condition);
 
         if (trim($this->tableName) == "")
@@ -625,22 +625,21 @@ class updateRow
 
         $temp = "";
 
-        for ($i = 0; $i < count($this->columnNames); $i++){
+        for ($i = 0; $i < count($this->columnNames); $i++) {
             if ($temp != "")
                 $temp .= ", ";
             else
                 $temp = " SET ";
 
-            $temp .= "`".$this->columnNames[$i]."` = '".$this->columnValues[$i]."'";
+            $temp .= "`" . $this->columnNames[$i] . "` = '" . $this->columnValues[$i] . "'";
         }
 
 
 
         $sqlCommand .= $temp;
 
-        if (!empty(trim($this->condition)))
-        {
-            $sqlCommand .= " ".$this->condition;
+        if (!empty(trim($this->condition))) {
+            $sqlCommand .= " " . $this->condition;
         }
 
         return executeQuery($sqlCommand);
@@ -819,9 +818,9 @@ class sqlUniqueKey
 }
 
 /**
-     * Show or Display Errors/Warnings in PHP
-     * @param bool $showErrors Set True if errors should be shown. Otherwise Set false.
-     */
+ * Show or Display Errors/Warnings in PHP
+ * @param bool $showErrors Set True if errors should be shown. Otherwise Set false.
+ */
 function setPHPErrors($showErrors)
 {
     if ($showErrors) {
@@ -830,5 +829,324 @@ function setPHPErrors($showErrors)
     } else {
         // ini_set('display_errors', 0);
         error_reporting(0);
+    }
+}
+
+/**
+ * Check if the Table exists in the database
+ * @param string $tableName Name of the Table
+ * @return bool Returns true if the Table exists in the database. Otherwise returns false.
+ */
+function isTablePresent($tableName)
+{
+    return executeQuery("DESCRIBE `$tableName`");
+}
+
+
+/**
+ * Upload a File and Save it
+ */
+class uploadFile
+{
+    private $directory;
+    private $fileName;
+    private $maxSize;
+    private $fileFormats;
+    private $compressImage;
+    private $compressQuality;
+    private $replaceFile;
+    private $keepOriginal;
+    private $compressedImageDirectory;
+
+    /**
+     * Upload a File and Save it
+     */
+    function __construct()
+    {
+        $this->directory = "./";
+        // $this->fileName = "image_" . rand(1, 99999);
+        $this->fileName = "";
+        $this->maxSize = 0;
+        $this->fileFormats = array();
+        $this->compressImage = false;
+        $this->compressQuality = 60;
+        $this->replaceFile = false;
+        $this->keepOriginal = true;
+        $this->compressedImageDirectory = "./compressed/";
+    }
+    /**
+     * set Directory where the file should be uploaded
+     * @param string $directory Relative Directory where the file should be uploaded
+     */
+    public function setDirectory($directory)
+    {
+        if (empty(trim($directory))) {
+            $this->directory = "./";
+            $this->compressedImageDirectory = "./compressed/";
+        } else {
+            $this->directory = $directory;
+            $this->compressedImageDirectory = $directory . "compressed/";
+        }
+    }
+
+
+    /**
+     * Set File Names
+     * @param string $fileName Name of the file to be uploaded
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+    }
+
+
+    /**
+     * Set Maximum Size of the File to be uploaded (in MB)
+     * @param int $Maximum Size of the File (in MB) to be uploaded. Set 0 for unlimited size.
+     */
+    public function setMaxSize($maxSize)
+    {
+        if ($maxSize > 0)
+            $this->maxSize = $maxSize * 10485760;
+        else
+            $this->maxSize = 0;
+    }
+
+    /**
+     * The File Formats to be accepted for Upload
+     * @param array $fileFormats List of file formats to be accepted for Upload. Set Empty array for all File formats.
+     */
+    public function setFileFormats($fileFormats)
+    {
+        $this->fileFormats = $fileFormats;
+    }
+
+
+    /**
+     * Whether the File should be replaced incase a file already exists with the same name.
+     * @param boolean $replaceFile Set True to replace the existing file. Otherwise set False.
+     */
+    public function setReplaceFile($replaceFile)
+    {
+        $this->replaceFile = $replaceFile;
+    }
+
+
+    /**
+     * Find the Extension of the File uploaded.
+     * @param array $file The File Array ($_FILES['image'])
+     * @return string The file extension without dot (.)
+     */
+    public function getFileExtension($file)
+    {
+        return strtolower(pathinfo($this->directory . basename($file["name"]), PATHINFO_EXTENSION));
+    }
+
+
+    /**
+     * Whether the File should be compressed to a lower file size. (Only Works for Images)
+     * @param boolean $compressImage Set True to compress the image. Otherwise set False.
+     * @param int $compressQuality Set the compression quality of the image. Default 60. [Min 0 - Max 100]
+     * @param boolean $keepOriginal Set True to Keep the original file + Compressed File. Otherwise set False to save only Compressed File.
+     */
+    public function compressImage($compressImage = true, $compressQuality = 60, $keepOriginal = true)
+    {
+        $this->compressImage = $compressImage;
+        if ($compressQuality > 0 && $compressQuality < 100)
+            $this->compressQuality = $compressQuality;
+
+        $this->keepOriginal = $keepOriginal;
+    }
+
+
+
+    /**
+     * Get The Name of The File Saved
+     * @return string The File Name with extension.
+     */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+
+    /**
+     * Get the Directory where the File is stored.
+     * @return string The Directory where the File is stored.
+     */
+    public function getFileDirectory()
+    {
+        return $this->directory;
+    }
+
+
+    /**
+     * Get the Directory where the Compressed Image is stored.
+     * @return string The Directory where the Compressed Image is stored.
+     */
+    public function getCompressedImageDirectory()
+    {
+        return $this->compressedImageDirectory;
+    }
+
+    /**
+     * Get the Relative File Location where the File is stored.
+     * @return string TheRelative File Location where the File is stored.
+     */
+    public function getFileLink()
+    {
+        return $this->getFileDirectory() . $this->getFileName();
+    }
+
+
+    /**
+     * Get the Relative File Location where the Compressed Image is stored.
+     * @return string TheRelative File Location where the Compressed Image is stored.
+     */
+    public function getCompressedImageLink()
+    {
+        if ($this->compressImage)
+            if ($this->keepOriginal)
+                return $this->getFileLink();
+            else
+                return $this->getCompressedImageDirectory() . $this->getFileName();
+        else
+            return "";
+    }
+
+     /**
+     * Get the Relative File Directory where the Compressed Image is stored.
+     * @return string The Relative File Directory where the Compressed Image is stored.
+     */
+    public function setCompressedImageDirectory($compressedImageDirectory)
+    {
+        if (empty(trim($compressedImageDirectory)))
+            $this->compressedImageDirectory = $this->directory . "compressed/";
+        else
+            $this->compressedImageDirectory = $compressedImageDirectory;
+    }
+
+
+     /**
+     * Upload the File
+     * @param array $file The File to be uploaded.
+     * @param string $target_file Target Destination for the File to be uploaded.
+     * @return boolean Returns True if the file was uploaded successfully. Otherwise Returns false.
+     */
+    private function upload($file, $target_file)
+    {
+
+        if (!file_exists($this->directory))
+            mkdir($this->directory);
+
+        if (move_uploaded_file($file["tmp_name"], $target_file)) {
+            if ($this->compressImage) {
+                $info = getimagesize($target_file);
+
+
+                if ($info['mime'] == 'image/jpeg' || $info['mime'] == 'image/jpg')
+                    $image = imagecreatefromjpeg($target_file);
+
+                elseif ($info['mime'] == 'image/gif')
+                    $image = imagecreatefromgif($target_file);
+
+                elseif ($info['mime'] == 'image/png')
+                    $image = imagecreatefrompng($target_file);
+
+                elseif ($info['mime'] == 'image/webp')
+                    $image = imagecreatefromwebp($target_file);
+
+                elseif ($info['mime'] == 'image/bmp')
+                    $image = imagecreatefrombmp($target_file);
+                else
+                    return false;
+
+
+                if (!$this->keepOriginal) {
+                    $destination = $target_file;
+                } else {
+                    $destination = $this->compressedImageDirectory . $this->getFileName();
+                    if (!file_exists($this->compressedImageDirectory))
+                        mkdir($this->compressedImageDirectory);
+                }
+
+                imagejpeg($image, $destination, $this->compressQuality);
+            }
+            return true;
+        } else
+            return false;
+    }
+
+/**
+     * Upload the File
+     * @param array $file The File to be uploaded.
+     * @param boolean $return_error_message Set True to get Operation Statement. Otherwise set False to get boolean value.
+     * @return string|boolean Returns true on success. Otherwise returns false. Returns Operation Statement if $return_error_message is set to true.
+     */
+    public function uploadFile($file, $return_error_message = false)
+    {
+        if ($this->maxSize > 0 && $file["size"] >  $this->maxSize) {
+            if ($return_error_message)
+                return "File Too Large.";
+            else
+                return false;
+        }
+
+        if (empty(trim($this->fileName)))
+            $this->fileName = $file["name"];
+
+
+        $imageFileType = $this->getFileExtension($file);
+        if (count($this->fileFormats) > 0) {
+            $temp = false;
+            foreach ($this->fileFormats as $format) {
+                if ($imageFileType == $format) {
+                    $temp = true;
+                    break;
+                }
+            }
+
+            if (!$temp) {
+                if ($return_error_message)
+                    return "Unsupported File Format Provided";
+                else
+                    return false;
+            }
+        }
+
+        $target_file = $this->directory . urlencode($this->fileName);
+        // $uploadPath = $siteLink . "wallpapers/image/" . urlencode($this->imageName);
+        if ($this->replaceFile) {
+            if (file_exists($target_file)) {
+                unlink($target_file);
+            }
+        } else if (file_exists($target_file)) {
+            if ($return_error_message)
+                return "File Already Exists";
+            else
+                return false;
+        }
+
+        $check = getimagesize($file["tmp_name"]);
+        if ($check !== false) {
+        } else {
+            if ($return_error_message)
+                return "Invalid File Provided";
+            else
+                return false;
+        }
+
+
+        if ($this->upload($file, $target_file)) {
+            if ($return_error_message)
+                return "File Uploaded successfully";
+            else
+                return true;
+        } else {
+            if ($return_error_message)
+                echo "Sorry, there was an error uploading the file";
+            else
+                return false;
+        }
     }
 }

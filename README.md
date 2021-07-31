@@ -22,6 +22,8 @@ Quickly Manage SQL Functions in PHP
 17. [sqlPrimaryKey](#sqlPrimaryKey)
 18. [sqlUniqueKey](#sqlUniqueKey)
 19. [setPHPErrors](#setPHPErrors)
+20. [isTablePresent](#isTablePresent)
+21. [uploadFile](#uploadFile)
 
 ## Usage/Examples
 
@@ -206,4 +208,46 @@ $sqlUniqueKey->setKeys();
 
 ```php
 setPHPErrors(false); //hide all errors & warnings
+```
+
+
+## isTablePresent
+#### Check if the Table exists in the database
+
+```php
+isTablePresent($tableName); //Returns true if the Table exists in the database. Otherwise returns false.
+```
+
+
+
+## uploadFile
+#### Upload a File and Save it
+
+```php
+$uploadImage = new uploadFile();
+
+$uploadImage->setDirectory("uploads/"); //set directory where the file should be uploaded.
+
+$uploadImage->setMaxSize(10); //Set Maximum Size of the File to be uploaded (in MB). Set 0 for unlimited size.
+
+$uploadImage->setFileFormats(array("jpg", "png", "jpeg", "gif")); //List of file formats to be accepted for Upload. Set Empty array for all File formats.
+
+$uploadImage->setReplaceFile(true); //Set True to replace the existing file. Otherwise set False. Default is false.
+
+$uploadImage->setFileName("myimage2.".$uploadImage->getFileExtension($_FILES['imgfile'])); //set a custom file name.
+
+$uploadImage->setReplaceFile(true); //Replace the existing file with same name.
+
+$uploadImage->compressImage(true, $compression_quality, $keep_original); // (optional) Compress the image. 
+/* 
+Compression Quality should be Minimum 0 (Lowest compression quality) and Maximum 100 (highest compression quality). 
+If Keep Original is set to true, only one file gets saved. Otherwise Both original and compressed files are saved.
+*/
+
+echo $uploadImage->setCompressedImageDirectory("uploads/compressed/"); //(optional) The Relative File Directory where the Compressed Image is stored.
+
+echo $uploadImage->uploadFile($_FILES['imgfile'], true); //Upload the file
+
+echo $uploadImage->getFileLink(); //Get the Relative file Link of the uploaded file.
+echo $uploadImage->getCompressedImageLink(); //Get the Relative file Link of the compressed Image.
 ```
