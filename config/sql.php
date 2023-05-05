@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/config.php';
+
 /**
  * Different Types of SQL Data Types that can be passed within Functions if Required
  */
@@ -44,7 +46,7 @@ $sqlOperationTypes->ALTER = "ALTER";
  */
 function executeQuery($sql)
 {
-    global $link;
+    $link = connectSQL();
 
     if ($stmt = mysqli_prepare($link, $sql)) {
 
@@ -70,7 +72,7 @@ function executeQuery($sql)
  */
 function fetchData($sql, $safequery = true)
 {
-    global $link;
+    $link = connectSQL();
 
     if ($safequery && !(strpos($sql, ' LIMIT ') !== false))
         $sql = trim($sql) . " LIMIT 1";
@@ -102,7 +104,7 @@ function isSQLDataExist($sql, $safequery = true)
  */
 function fetchList($sql)
 {
-    global $link;
+    $link = connectSQL();
     $query = $link->query($sql);
 
     return $query;
@@ -334,8 +336,8 @@ function insertNewColumn($tableName, $newColumnName, $dataType, $size = 0, $defa
  * Edits the Column Properties in the Table
  * @param string $tableName Name of the Table (Required)
  * @param string $columnName Name of the Column (Required)
- * @param string $newColumnName Name of the New Column (Optional)
  * @param string $dataType Set Data Type of the Column. Example: INT, TEXT, DATETIME (Required)
+ * @param string $newColumnName Name of the New Column (Optional)
  * @param int $size Set the Max Size of Data in Column. Set 0 for undefined. (Optional) [Default = 0]
  * @param string $defaultValue Set the Default Value of Data in Column.(Optional)
  * @param bool $canBeNull Sets if the column can ever be null. (Optional) [Default = true]
@@ -346,7 +348,7 @@ function insertNewColumn($tableName, $newColumnName, $dataType, $size = 0, $defa
  * @return bool Returns true if the Column is changed in the Table. Otherwise Returns false.
  */
 
-function editColumn($tableName, $columnName, $newColumnName = "", $dataType, $size = 0, $defaultValue = "", $canBeNull = true, $isPrimaryKey = false, $autoIncrement = false, $insertAfter = "LAST")
+function editColumn($tableName, $columnName, $dataType, $newColumnName = "", $size = 0, $defaultValue = "", $canBeNull = true, $isPrimaryKey = false, $autoIncrement = false, $insertAfter = "LAST")
 {
     if (trim($tableName) == "")
         return false;
@@ -824,10 +826,10 @@ class sqlUniqueKey
 function setPHPErrors($showErrors)
 {
     if ($showErrors) {
-        // ini_set('display_errors', 1);
+        ini_set('display_errors', 1);
         error_reporting(E_ALL);
     } else {
-        // ini_set('display_errors', 0);
+        ini_set('display_errors', 0);
         error_reporting(0);
     }
 }

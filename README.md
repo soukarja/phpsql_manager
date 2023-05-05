@@ -125,7 +125,7 @@ insertNewColumn($tableName, $newColumnName, $dataType, $size = 0, $defaultValue 
 #### Inserts a New Column into a previously made Table
 
 ```php
-editColumn($tableName, $columnName, $newColumnName = "", $dataType, $size = 0, $defaultValue = "", $canBeNull = true, $isPrimaryKey = false, $autoIncrement = false, $insertAfter = "LAST");
+editColumn($tableName, $columnName, $dataType, $newColumnName = "", $size = 0, $defaultValue = "", $canBeNull = true, $isPrimaryKey = false, $autoIncrement = false, $insertAfter = "LAST");
 ```
 
 
