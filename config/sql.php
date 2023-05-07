@@ -841,7 +841,7 @@ function setPHPErrors($showErrors)
  */
 function isTablePresent($tableName)
 {
-    return executeQuery("DESCRIBE `$tableName`");
+    return fetchData("SELECT * FROM information_schema.tables WHERE table_schema = '".DB_NAME."' AND table_name = '$tableName' LIMIT 1") == null ? false : true;
 }
 
 
